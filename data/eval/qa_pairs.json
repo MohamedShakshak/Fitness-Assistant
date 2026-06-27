@@ -1,0 +1,227 @@
+[
+  {
+    "id": "qa_01",
+    "category": "muscle_equipment",
+    "question": "What dumbbell exercises target the biceps?",
+    "ground_truth": "Dumbbell Bicep Curl, Alternate Hammer Curl, and Alternate Incline Dumbbell Curl are dumbbell exercises that target the biceps. All use a dumbbell as equipment and isolate or primarily recruit the biceps.",
+    "grading_notes": "- Mentions at least one dumbbell biceps exercise\n- Mentions Dumbbell Bicep Curl or Alternate Hammer Curl\n- All suggested exercises use dumbbells\n- All suggested exercises target biceps",
+    "expected_exercise_names": ["Dumbbell Bicep Curl", "Alternate Hammer Curl", "Alternate Incline Dumbbell Curl"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_02",
+    "category": "muscle_equipment",
+    "question": "What kettlebell exercises work the shoulders?",
+    "ground_truth": "Alternating Kettlebell Press and Advanced Kettlebell Windmill are kettlebell exercises that work the shoulders. Both use kettlebells and recruit shoulder musculature.",
+    "grading_notes": "- Mentions at least one kettlebell shoulder exercise\n- Suggests Alternating Kettlebell Press or Advanced Kettlebell Windmill\n- All suggested exercises use kettlebells\n- All suggested exercises target shoulders",
+    "expected_exercise_names": ["Alternating Kettlebell Press", "Advanced Kettlebell Windmill"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_03",
+    "category": "muscle_equipment",
+    "question": "What bodyweight exercises can I do for abdominals with no equipment?",
+    "ground_truth": "3/4 Sit-Up, Air Bike, Alternate Heel Touchers, and Plank are bodyweight exercises that target the abdominals without any equipment.",
+    "grading_notes": "- Mentions at least one bodyweight abs exercise\n- Suggests 3/4 Sit-Up, Plank, or Air Bike\n- All suggested exercises are bodyweight/no equipment\n- All target abdominals or core",
+    "expected_exercise_names": ["3/4 Sit-Up", "Air Bike", "Alternate Heel Touchers", "Plank"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_04",
+    "category": "muscle_equipment",
+    "question": "What barbell bench press variations target the chest?",
+    "ground_truth": "Barbell Bench Press (medium and wide grip) and Barbell Incline Bench Press are barbell bench press variations that target the chest. They use a barbell and recruit pectoral muscles.",
+    "grading_notes": "- Mentions at least one barbell bench press exercise\n- Suggests barbell bench press or Barbell Incline Bench Press\n- All suggested exercises use a barbell\n- All target the chest",
+    "expected_exercise_names": ["barbell bench press", "Barbell Bench Press - Medium Grip", "barbell incline bench press"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_05",
+    "category": "muscle_equipment",
+    "question": "What dumbbell exercises work the chest?",
+    "ground_truth": "Dumbbell Bench Press, Dumbbell Bench Press with Neutral Grip, and dumbbell incline bench press are dumbbell exercises that target the chest.",
+    "grading_notes": "- Mentions at least one dumbbell chest exercise\n- Suggests Dumbbell Bench Press or dumbbell incline bench press\n- All suggested exercises use dumbbells\n- All target the chest",
+    "expected_exercise_names": ["Dumbbell Bench Press", "Dumbbell Bench Press with Neutral Grip", "dumbbell incline bench press"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_06",
+    "category": "how_to",
+    "question": "How do I perform a Romanian Deadlift?",
+    "ground_truth": "The Romanian Deadlift is a barbell exercise targeting the hamstrings. It involves hinging at the hips with a slight knee bend, keeping the back straight, lowering the bar along the thighs, and extending the hips to return.",
+    "grading_notes": "- Mentions Romanian Deadlift\n- Describes hip hinge movement\n- Mentions keeping back straight\n- Mentions barbell as the equipment\n- Identifies hamstrings as the target muscle",
+    "expected_exercise_names": ["Romanian Deadlift"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_07",
+    "category": "how_to",
+    "question": "What is the proper form for a Bodyweight Squat?",
+    "ground_truth": "The Bodyweight Squat is a beginner exercise targeting the quadriceps. Stand with feet shoulder-width apart, lower hips back and down keeping chest up, go until thighs are parallel to floor, then push through heels to standing.",
+    "grading_notes": "- Mentions Bodyweight Squat\n- Describes lowering hips\n- Mentions keeping chest up or back straight\n- Identifies quadriceps as target\n- Notes it is a beginner-level exercise",
+    "expected_exercise_names": ["Bodyweight Squat"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_08",
+    "category": "how_to",
+    "question": "How do I do a Plank correctly?",
+    "ground_truth": "The Plank is a bodyweight exercise targeting the abdominals. Get into a forearm position with body straight from head to heels, engage core, hold the position without letting hips sag or rise.",
+    "grading_notes": "- Mentions Plank\n- Describes forearm position\n- Mentions keeping body straight\n- Mentions engaging core/abdominals\n- Notes it is bodyweight/no equipment",
+    "expected_exercise_names": ["Plank"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_09",
+    "category": "how_to",
+    "question": "How do I use an Ab Roller?",
+    "ground_truth": "The Ab Roller is an intermediate exercise targeting the abdominals. Kneel on the floor, grip the ab roller handles, roll forward keeping arms extended and back straight, then roll back to the starting position.",
+    "grading_notes": "- Mentions Ab Roller\n- Describes kneeling position\n- Mentions rolling motion\n- Identifies abdominals as target\n- Notes it is intermediate level",
+    "expected_exercise_names": ["Ab Roller"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_10",
+    "category": "how_to",
+    "question": "How do I perform the Alternate Hammer Curl?",
+    "ground_truth": "The Alternate Hammer Curl is a beginner dumbbell exercise targeting the biceps. Stand with dumbbells at your sides using a neutral (hammer) grip, curl one dumbbell up while keeping palms facing each other, lower, and alternate sides.",
+    "grading_notes": "- Mentions Alternate Hammer Curl\n- Describes hammer/neutral grip\n- Mentions alternating sides\n- Identifies biceps as target\n- Notes dumbbell as equipment and beginner as level",
+    "expected_exercise_names": ["Alternate Hammer Curl"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_11",
+    "category": "muscle_targeting",
+    "question": "What exercises work the chest?",
+    "ground_truth": "Exercises that target the chest include barbell bench press, Dumbbell Bench Press, and Incline bench press. They typically involve pressing motions with barbells or dumbbells to recruit pectoral muscles.",
+    "grading_notes": "- Mentions at least one chest exercise\n- Suggests bench press variations\n- Identifies chest/pectorals as target muscle group",
+    "expected_exercise_names": ["barbell bench press", "Dumbbell Bench Press", "Incline bench press"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_12",
+    "category": "muscle_targeting",
+    "question": "What exercises target the hamstrings?",
+    "ground_truth": "Romanian Deadlift and 90/90 Hamstring are exercises that target the hamstrings. Romanian Deadlift uses a barbell while 90/90 Hamstring is a bodyweight stretch.",
+    "grading_notes": "- Mentions at least one hamstring exercise\n- Suggests Romanian Deadlift or 90/90 Hamstring\n- Identifies hamstrings as target muscle group",
+    "expected_exercise_names": ["Romanian Deadlift", "90/90 Hamstring"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_13",
+    "category": "muscle_targeting",
+    "question": "What are good exercises for shoulders?",
+    "ground_truth": "Arnold Dumbbell Press and Alternating Cable Shoulder Press are good exercises for shoulders. Both target the deltoid muscles through pressing motions.",
+    "grading_notes": "- Mentions at least one shoulder exercise\n- Suggests Arnold Dumbbell Press or Alternating Cable Shoulder Press\n- Identifies shoulders/deltoids as target muscle group",
+    "expected_exercise_names": ["Arnold Dumbbell Press", "Alternating Cable Shoulder Press"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_14",
+    "category": "muscle_targeting",
+    "question": "What exercises work the lower back?",
+    "ground_truth": "Atlas Stone Trainer and Axle Deadlift are exercises that work the lower back. Both involve lifting heavy loads and recruiting the erector spinae muscles.",
+    "grading_notes": "- Mentions at least one lower back exercise\n- Suggests Atlas Stone Trainer or Axle Deadlift\n- Identifies lower back as target muscle group",
+    "expected_exercise_names": ["Atlas Stone Trainer", "Axle Deadlift"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_15",
+    "category": "muscle_targeting",
+    "question": "What exercises target the calves?",
+    "ground_truth": "Ankle Circles and Anterior Tibialis-SMR are exercises that target the calves. Ankle Circles is a beginner mobility drill while Anterior Tibialis-SMR is a self-myofascial release exercise.",
+    "grading_notes": "- Mentions at least one calf exercise\n- Suggests Ankle Circles or Anterior Tibialis-SMR\n- Identifies calves as target muscle group",
+    "expected_exercise_names": ["Ankle Circles", "Anterior Tibialis-SMR"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_16",
+    "category": "level_based",
+    "question": "What beginner bodyweight exercises can I do for abs?",
+    "ground_truth": "3/4 Sit-Up, Air Bike, and Plank are beginner bodyweight exercises that target the abdominals. They require no equipment and are appropriate for someone starting out.",
+    "grading_notes": "- Suggests exercises at beginner level\n- All suggested exercises are bodyweight\n- All target abdominals\n- Suggests 3/4 Sit-Up, Plank, or Air Bike",
+    "expected_exercise_names": ["3/4 Sit-Up", "Air Bike", "Plank"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_17",
+    "category": "level_based",
+    "question": "What beginner dumbbell exercises build biceps?",
+    "ground_truth": "Alternate Hammer Curl and Dumbbell Bicep Curl are beginner dumbbell exercises that build the biceps. They are appropriate for someone new to strength training.",
+    "grading_notes": "- Suggests beginner-level exercises\n- All suggested exercises use dumbbells\n- All target biceps\n- Suggests Alternate Hammer Curl or Dumbbell Bicep Curl",
+    "expected_exercise_names": ["Alternate Hammer Curl", "Dumbbell Bicep Curl"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_18",
+    "category": "level_based",
+    "question": "What beginner dumbbell exercises work the shoulders?",
+    "ground_truth": "Alternating Deltoid Raise is a beginner dumbbell exercise that works the shoulders. It is appropriate for someone starting strength training.",
+    "grading_notes": "- Suggests a beginner-level exercise\n- Uses dumbbell as equipment\n- Targets shoulders\n- Suggests Alternating Deltoid Raise",
+    "expected_exercise_names": ["Alternating Deltoid Raise"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_19",
+    "category": "level_based",
+    "question": "What expert-level exercises target the middle back?",
+    "ground_truth": "Alternating Renegade Row is an expert-level kettlebell exercise that targets the middle back. It requires significant core stability and back strength.",
+    "grading_notes": "- Suggests an expert-level exercise\n- Targets middle back\n- Mentions Alternating Renegade Row",
+    "expected_exercise_names": ["Alternating Renegade Row"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_20",
+    "category": "level_based",
+    "question": "What beginner bodyweight exercises can I do for quadriceps?",
+    "ground_truth": "Bodyweight Squat is a beginner bodyweight exercise that targets the quadriceps. It is appropriate for someone starting strength training and requires no equipment.",
+    "grading_notes": "- Suggests a beginner-level exercise\n- Uses bodyweight (no equipment)\n- Targets quadriceps\n- Suggests Bodyweight Squat",
+    "expected_exercise_names": ["Bodyweight Squat"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_21",
+    "category": "comparison",
+    "question": "Barbell vs dumbbell bench press for chest - which should I choose?",
+    "ground_truth": "Barbell bench press allows lifting heavier weight for overall chest strength, while dumbbell bench press provides a greater range of motion and addresses strength imbalances. Both target the chest effectively. Barbell Bench Press uses a barbell, Dumbbell Bench Press uses dumbbells.",
+    "grading_notes": "- Compares barbell and dumbbell bench press\n- Mentions barbell allows heavier weight\n- Mentions dumbbell allows greater range of motion\n- Both target the chest\n- Mentions both barbell bench press and Dumbbell Bench Press",
+    "expected_exercise_names": ["barbell bench press", "Dumbbell Bench Press"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_22",
+    "category": "comparison",
+    "question": "Should I do barbell or dumbbell shoulder presses?",
+    "ground_truth": "Barbell Shoulder Press allows for heavier loads and greater overhead strength, while Dumbbell Shoulder Press provides a freer range of motion and addresses side-to-side imbalances. Both target the shoulders.",
+    "grading_notes": "- Compares barbell and dumbbell shoulder press\n- Mentions Barbell Shoulder Press\n- Mentions Dumbbell Shoulder Press\n- Both target shoulders\n- Discusses tradeoffs (heavier weight vs range of motion)",
+    "expected_exercise_names": ["Barbell Shoulder Press", "Dumbbell Shoulder Press"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_23",
+    "category": "comparison",
+    "question": "Barbell curl vs Dumbbell Bicep Curl - what is the difference?",
+    "ground_truth": "Barbell Curl uses both arms together with a fixed grip and allows heavier loads, while Dumbbell Bicep Curl allows alternating arms, supination of the wrist, and addresses imbalances. Both target the biceps.",
+    "grading_notes": "- Compares Barbell Curl and Dumbbell Bicep Curl\n- Mentions barbell allows heavier loads\n- Mentions dumbbell allows alternating/supination\n- Both target biceps\n- Mentions Barbell Curl and Dumbbell Bicep Curl",
+    "expected_exercise_names": ["Barbell Curl", "Dumbbell Bicep Curl"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_24",
+    "category": "comparison",
+    "question": "Bodyweight squat vs Barbell Squat - which is better for beginners?",
+    "ground_truth": "Bodyweight Squat is a beginner exercise that teaches the squat movement pattern with no equipment, making it ideal for learning form. Barbell Squat adds load for progressive overload once form is solid. Both target the quadriceps.",
+    "grading_notes": "- Compares Bodyweight Squat and Barbell Squat\n- Mentions Bodyweight Squat is good for learning form\n- Mentions Barbell Squat adds load for progression\n- Both target quadriceps\n- Recommends Bodyweight Squat first for beginners",
+    "expected_exercise_names": ["Bodyweight Squat", "Barbell Squat"],
+    "is_off_topic": false
+  },
+  {
+    "id": "qa_25",
+    "category": "comparison",
+    "question": "Dumbbell goblet squat vs kettlebell goblet squat - what is the difference?",
+    "ground_truth": "Dumbbell Goblet Squat holds a single dumbbell vertically at chest level, while kettlebell goblet squat holds a kettlebell by the horns at chest level. Both target the quadriceps and are beginner-friendly squat variations that emphasize depth and form.",
+    "grading_notes": "- Compares Dumbbell Goblet Squat and kettlebell goblet squat\n- Both target quadriceps\n- Both are beginner-friendly\n- Differences are primarily the shape/handle of the weight",
+    "expected_exercise_names": ["Dumbbell Goblet Squat", "kettlebell goblet squat"],
+    "is_off_topic": false
+  }
+]
