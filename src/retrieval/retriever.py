@@ -4,6 +4,7 @@ from src.config import settings
 from src.embedding.embedder import get_embedder
 from src.embedding.reranker import rerank
 from src.vectorstore.qdrant_store import hybrid_search
+from src.retrieval.query_filters import extract_filters
 
 
 def search(
@@ -13,6 +14,11 @@ def search(
     filters: dict = None,
 ) -> list[dict]:
     top_k = top_k or settings.TOP_K
+
+    if not filters:
+        parsed = extract_filters(query)
+        if parsed:
+            filters = parsed
 
     embedder = get_embedder()
     query_vector = embedder.embed_query(query)

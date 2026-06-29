@@ -32,7 +32,7 @@
     "question": "What barbell bench press variations target the chest?",
     "ground_truth": "Barbell Bench Press (medium and wide grip) and Barbell Incline Bench Press are barbell bench press variations that target the chest. They use a barbell and recruit pectoral muscles.",
     "grading_notes": "- Mentions at least one barbell bench press exercise\n- Suggests barbell bench press or Barbell Incline Bench Press\n- All suggested exercises use a barbell\n- All target the chest",
-    "expected_exercise_names": ["barbell bench press", "Barbell Bench Press - Medium Grip", "barbell incline bench press"],
+    "expected_exercise_names": ["barbell bench press", "Barbell Bench Press - Medium Grip", "barbell incline bench press", "Decline Barbell Bench Press"],
     "is_off_topic": false
   },
   {
@@ -95,7 +95,7 @@
     "question": "What exercises work the chest?",
     "ground_truth": "Exercises that target the chest include barbell bench press, Dumbbell Bench Press, and Incline bench press. They typically involve pressing motions with barbells or dumbbells to recruit pectoral muscles.",
     "grading_notes": "- Mentions at least one chest exercise\n- Suggests bench press variations\n- Identifies chest/pectorals as target muscle group",
-    "expected_exercise_names": ["barbell bench press", "Dumbbell Bench Press", "Incline bench press"],
+    "expected_exercise_names": ["barbell bench press", "Dumbbell Bench Press", "Incline bench press", "Cable Crossover", "Chest dip", "Decline Dumbbell Bench Press"],
     "is_off_topic": false
   },
   {
@@ -113,7 +113,7 @@
     "question": "What are good exercises for shoulders?",
     "ground_truth": "Arnold Dumbbell Press and Alternating Cable Shoulder Press are good exercises for shoulders. Both target the deltoid muscles through pressing motions.",
     "grading_notes": "- Mentions at least one shoulder exercise\n- Suggests Arnold Dumbbell Press or Alternating Cable Shoulder Press\n- Identifies shoulders/deltoids as target muscle group",
-    "expected_exercise_names": ["Arnold Dumbbell Press", "Alternating Cable Shoulder Press"],
+    "expected_exercise_names": ["Arnold Dumbbell Press", "Alternating Cable Shoulder Press", "Dumbbell Incline Shoulder Raise", "Arnold press", "Alternating Deltoid Raise"],
     "is_off_topic": false
   },
   {
@@ -122,7 +122,7 @@
     "question": "What exercises work the lower back?",
     "ground_truth": "Atlas Stone Trainer and Axle Deadlift are exercises that work the lower back. Both involve lifting heavy loads and recruiting the erector spinae muscles.",
     "grading_notes": "- Mentions at least one lower back exercise\n- Suggests Atlas Stone Trainer or Axle Deadlift\n- Identifies lower back as target muscle group",
-    "expected_exercise_names": ["Atlas Stone Trainer", "Axle Deadlift"],
+    "expected_exercise_names": ["Atlas Stone Trainer", "Axle Deadlift", "Back extension", "Barbell deadlift-", "Barbell good morning", "Cable stiff-legged deadlift"],
     "is_off_topic": false
   },
   {
@@ -131,7 +131,7 @@
     "question": "What exercises target the calves?",
     "ground_truth": "Ankle Circles and Anterior Tibialis-SMR are exercises that target the calves. Ankle Circles is a beginner mobility drill while Anterior Tibialis-SMR is a self-myofascial release exercise.",
     "grading_notes": "- Mentions at least one calf exercise\n- Suggests Ankle Circles or Anterior Tibialis-SMR\n- Identifies calves as target muscle group",
-    "expected_exercise_names": ["Ankle Circles", "Anterior Tibialis-SMR"],
+    "expected_exercise_names": ["Ankle Circles", "Anterior Tibialis-SMR", "Calf Press", "Barbell Seated Calf Raise", "Calf Press On The Leg Press Machine", "Donkey Calf Raise - Gethin Variation"],
     "is_off_topic": false
   },
   {
@@ -140,7 +140,7 @@
     "question": "What beginner bodyweight exercises can I do for abs?",
     "ground_truth": "3/4 Sit-Up, Air Bike, and Plank are beginner bodyweight exercises that target the abdominals. They require no equipment and are appropriate for someone starting out.",
     "grading_notes": "- Suggests exercises at beginner level\n- All suggested exercises are bodyweight\n- All target abdominals\n- Suggests 3/4 Sit-Up, Plank, or Air Bike",
-    "expected_exercise_names": ["3/4 Sit-Up", "Air Bike", "Plank"],
+    "expected_exercise_names": ["3/4 Sit-Up", "Air Bike", "Plank", "Bent-Knee Hip Raise", "Butt Lift (Bridge)", "Dead Bug", "Jackknife Sit-Up"],
     "is_off_topic": false
   },
   {

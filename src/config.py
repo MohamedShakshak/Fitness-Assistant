@@ -58,8 +58,12 @@ class Settings(BaseSettings):
     SPARSE_MODEL: str = "Qdrant/bm25"
 
     # Evaluation
-    EVAL_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
+    EVAL_MODEL: str = "gemini/gemini-1.5-flash"
     EVAL_BATCH_SIZE: int = 5
+    EVAL_PROVIDER: str = "openrouter"
+
+    # Google Gemini (for evaluation, free tier: 1500 req/day)
+    GEMINI_API_KEY: str = ""
 
     # Paths
     DATA_DIR: Path = PROJECT_ROOT / "data"
@@ -75,6 +79,11 @@ class Settings(BaseSettings):
             raise ValueError(
                 "OPENROUTER_API_KEY is required when LLM_PROVIDER='openrouter'. "
                 "Set it in .env or switch LLM_PROVIDER to 'ollama'."
+            )
+        if self.EVAL_PROVIDER == "google" and not self.GEMINI_API_KEY:
+            raise ValueError(
+                "GEMINI_API_KEY is required when EVAL_PROVIDER='google'. "
+                "Set it in .env or switch EVAL_PROVIDER to 'openrouter'."
             )
         return self
 
