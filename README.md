@@ -17,85 +17,40 @@ Built with hybrid search (dense + BM25), cross-encoder reranking, metadata-guide
 ## Architecture 
 
 ```mermaid
-flowchart TB
-    subgraph Frontend["Streamlit Chat UI"]
-        UI[Chat Input & History]
-        SIDE[Sidebar<br/>Filters: Body Part, Equipment, Level<br/>LLM Provider Toggle]
+flowchart LR
+    subgraph QueryFlow["Query Flow"]
+        A[User Question] --> B{Metadata Keywords<br/>Detected?}
+        B -->|Yes - filter applied| C[Qdrant Hybrid Search<br/>Dense + BM25 + Filter]
+        B -->|No - full search| D[Qdrant Hybrid Search<br/>Dense + BM25]
+        C --> E{Results & No Filter?}
+        D --> F[BGE Reranker<br/>Cross-encoder]
+        E -->|Yes - rerank| F
+        E -->|No - skip rerank| G
+        F --> G[Top 5 Results]
+        G --> H[Format Context<br/>with Sources]
+        H --> I[LLM Generation<br/>OpenRouter / Ollama]
+        I --> J[Answer + Sources<br/>+ Medical Disclaimer]
     end
+```
 
-    subgraph API["FastAPI Backend"]
-        QRY["POST /query"]
-        SRC["POST /search"]
-        FLT["GET /filters"]
+```mermaid
+flowchart LR
+    subgraph IndexFlow["Indexing Pipeline"]
+        K[Raw Data<br/>3 sources, 4,387] --> L[ExerciseChunker<br/>Labeled-section format]
+        L --> M[Dense Embedding<br/>BGE-base-en-v1.5, 768d]
+        L --> N[Sparse Embedding<br/>BM25 via fastembed]
+        M --> O[Qdrant<br/>3,204 points]
+        N --> O
     end
+```
 
-    subgraph Retrieval["Retrieval Layer"]
-        direction TB
-        QF[Query Filters<br/>Keyword Extraction]
-        EMB[Embed Query<br/>BGE-base-en-v1.5]
-        SPARSE[Sparse Embed<br/>BM25 via fastembed]
-        HYBRID[Hybrid Search<br/>Dense + BM25 Prefetch]
-        RR["Reranker (if no filter)<br/>BGE-reranker-base"]
-        META[Metadata Filter<br/>Qdrant Payload Filter]
+```mermaid
+flowchart LR
+    subgraph EvalFlow["Evaluation Framework"]
+        P[Same Q&A Dataset<br/>25 fitness + 5 off-topic] --> Q[Deterministic<br/>Recall@K, MRR, Hit Rate<br/>No LLM needed]
+        P --> R[RAGAS Faithfulness<br/>Judge LLM verifies<br/>claim grounding]
+        P --> S[Custom DiscreteMetrics<br/>Judge LLM checks<br/>Disclaimer, Citation, Refusal]
     end
-
-    subgraph Store["Qdrant Vector Store"]
-        QDR[(3,204 chunks)]
-        DENSE[(768d dense index)]
-        BM25[(BM25 sparse index)]
-        PAYLOAD[(Payload: name, category,<br/>body_part, equipment, level,<br/>muscles, source)]
-    end
-
-    subgraph Generation["Generation Layer"]
-        CTX[Format Context<br/>[1] Name + Text + Source]
-        PROMPT[System Prompt<br/>Fitness Expert + Guardrails<br/>+ Citation Requirement]
-        CHAT[Chat History<br/>5-turn sliding window]
-        LLM[Generation LLM<br/>OpenRouter / Ollama]
-        GUARD[Medical Disclaimer<br/>Injected by Prompt]
-    end
-
-    subgraph Evaluation["Evaluation Framework"]
-        E1["Deterministic<br/>Recall@K, MRR, Hit Rate<br/>(No LLM needed)"]
-        E2["RAGAS Faithfulness<br/>(Judge LLM checks<br/>claim grounding)"]
-        E3["Custom DiscreteMetrics<br/>Disclaimer, Citation,<br/>Off-topic Refusal"]
-    end
-
-    subgraph Indexing["Indexing Pipeline"]
-        RAW[(Raw Datasets<br/>3 sources, 4,387 ex)]
-        CHUNK[ExerciseChunker<br/>Labeled-section format<br/>Filters empty records]
-        EMBED_ALL[Embed All<br/>Dense + Sparse]
-        UPSERT[Upsert to Qdrant]
-    end
-
-    UI -->|question, history, filters| QRY
-    SIDE -->|selected filters| QF
-    QRY --> QF
-    QF -->|filters: body_part, equipment, level| META
-    QRY --> EMB
-    QRY --> SPARSE
-    EMB -->|768d vector| HYBRID
-    SPARSE -->|BM25 tokens| HYBRID
-    META -->|prune candidates| HYBRID
-    HYBRID -->|Prefetch fusion| DENSE
-    HYBRID -->|Prefetch fusion| BM25
-    DENSE & BM25 -->|top 35 candidates| HYBRID
-    HYBRID -->|15-35 results| RR
-    RR -->|top 5 re-ranked| CTX
-    CTX -->|formatted context| PROMPT
-    CHAT -->|last 10 messages| PROMPT
-    PROMPT -->|structured prompt| LLM
-    LLM -->|answer + sources| UI
-    LLM --> GUARD
-    GUARD -->|disclaimer appended| UI
-
-    QRY -.->|run separately| E1
-    LLM -.->|score answer| E2
-    LLM -.->|score answer| E3
-
-    RAW -->|src/data_collection/*| CHUNK
-    CHUNK -->|3,204 Documents| EMBED_ALL
-    EMBED_ALL -->|dense + sparse vectors| UPSERT
-    UPSERT -->|PointStruct| QDR
 ```
 
 **Request flow:** User question + optional filters → metadata keyword extraction → dense + sparse embedding → Qdrant hybrid search with payload filtering → cross-encoder reranking (only when no metadata filter is active) → context formatting → prompt assembly with history → LLM generation → sourced answer with disclaimer.
