@@ -17,40 +17,40 @@ Built with hybrid search (dense + BM25), cross-encoder reranking, metadata-guide
 ## Architecture 
 
 ```mermaid
-flowchart LR
-    subgraph QueryFlow["Query Flow"]
-        A[User Question] --> B{Metadata Keywords<br/>Detected?}
-        B -->|Yes - filter applied| C[Qdrant Hybrid Search<br/>Dense + BM25 + Filter]
-        B -->|No - full search| D[Qdrant Hybrid Search<br/>Dense + BM25]
-        C --> E{Results & No Filter?}
-        D --> F[BGE Reranker<br/>Cross-encoder]
-        E -->|Yes - rerank| F
-        E -->|No - skip rerank| G
-        F --> G[Top 5 Results]
-        G --> H[Format Context<br/>with Sources]
-        H --> I[LLM Generation<br/>OpenRouter / Ollama]
-        I --> J[Answer + Sources<br/>+ Medical Disclaimer]
+flowchart TB
+    subgraph Frontend["Streamlit Chat UI"]
+        UI[User Interface]
+        SIDE[Sidebar: Filters + LLM Toggle]
     end
-```
 
-```mermaid
-flowchart LR
-    subgraph IndexFlow["Indexing Pipeline"]
-        K[Raw Data<br/>3 sources, 4,387] --> L[ExerciseChunker<br/>Labeled-section format]
-        L --> M[Dense Embedding<br/>BGE-base-en-v1.5, 768d]
-        L --> N[Sparse Embedding<br/>BM25 via fastembed]
-        M --> O[Qdrant<br/>3,204 points]
-        N --> O
+    subgraph API["FastAPI Backend"]
+        QRY["POST /query"]
+        SRC["POST /search"]
+        FLT["GET /filters"]
+        HLT["GET /health"]
     end
-```
 
-```mermaid
-flowchart LR
-    subgraph EvalFlow["Evaluation Framework"]
-        P[Same Q&A Dataset<br/>25 fitness + 5 off-topic] --> Q[Deterministic<br/>Recall@K, MRR, Hit Rate<br/>No LLM needed]
-        P --> R[RAGAS Faithfulness<br/>Judge LLM verifies<br/>claim grounding]
-        P --> S[Custom DiscreteMetrics<br/>Judge LLM checks<br/>Disclaimer, Citation, Refusal]
+    subgraph Pipeline["RAG Pipeline (LangChain LCEL)"]
+        direction TB
+        QF[Query Filters<br/>Metadata Extraction]
+        HYBRID[Hybrid Search<br/>Dense + BM25 Sparse]
+        RR[Reranker<br/>BGE Cross-Encoder]
+        LLM[Generation LLM<br/>OpenRouter / Ollama]
     end
+
+    subgraph Store["Vector Store"]
+        QDR[(Qdrant<br/>3,204 chunks<br/>768d + BM25)]
+    end
+
+    UI -->|HTTP| QRY
+    QRY --> QF
+    QF --> HYBRID
+    HYBRID --> QDR
+    HYBRID --> RR
+    RR --> LLM
+    LLM -->|Response| UI
+    SIDE -->|Filters| QF
+    QRY -->|Chat History| LLM
 ```
 
 **Request flow:** User question + optional filters → metadata keyword extraction → dense + sparse embedding → Qdrant hybrid search with payload filtering → cross-encoder reranking (only when no metadata filter is active) → context formatting → prompt assembly with history → LLM generation → sourced answer with disclaimer.
