@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     # LLM - OpenRouter
     OPENROUTER_API_KEY: str = ""
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
-    OPENROUTER_MODEL: str = "liquid/lfm-2.5-1.2b-instruct:free"
+    OPENROUTER_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
 
     # LLM Provider: "ollama" or "openrouter"
     LLM_PROVIDER: str = "openrouter"
