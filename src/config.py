@@ -54,16 +54,14 @@ class Settings(BaseSettings):
     LLM_MAX_RETRIES: int = 3
     LLM_TIMEOUT: int = 120
     LLM_MAX_TOKENS: int = 2048
-    EMBEDDING_DEVICE: str = "cpu"
+    EMBEDDING_DEVICE: str = "gpu"
     SPARSE_MODEL: str = "Qdrant/bm25"
 
     # Evaluation
-    EVAL_MODEL: str = "gemini/gemini-1.5-flash"
+    EVAL_MODEL: str = "nvidia/nemotron-3-ultra-550b-a55b:free"
     EVAL_BATCH_SIZE: int = 5
     EVAL_PROVIDER: str = "openrouter"
 
-    # Google Gemini (for evaluation, free tier: 1500 req/day)
-    GEMINI_API_KEY: str = ""
 
     # Paths
     DATA_DIR: Path = PROJECT_ROOT / "data"
