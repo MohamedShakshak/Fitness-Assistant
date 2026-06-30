@@ -1,106 +1,108 @@
 # FitAssist — Fitness Exercise RAG Assistant
 
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)](https://python.org)
+[![LangChain](https://img.shields.io/badge/LangChain-1.3-green?logo=langchain&logoColor=white)](https://langchain.com)
+[![Qdrant](https://img.shields.io/badge/Qdrant-1.18-red?logo=qdrant&logoColor=white)](https://qdrant.tech)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.137-teal?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.58-red?logo=streamlit&logoColor=white)](https://streamlit.io)
+[![RAGAS](https://img.shields.io/badge/RAGAS-0.4.3-purple)](/)
+[![tests](https://img.shields.io/badge/tests-79%20passing-brightgreen)](/)
+
 End-to-end RAG system for fitness exercise Q&A. Ask questions like *"What exercises target my chest?"*, *"How do I deadlift?"*, or *"Give me beginner leg exercises"* and get sourced, expert-level answers from a knowledge base of **3,204 exercises**.
 
-![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)
-![LangChain](https://img.shields.io/badge/LangChain-1.3-green?logo=langchain&logoColor=white)
-![Qdrant](https://img.shields.io/badge/Qdrant-1.18-red?logo=qdrant&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.137-teal?logo=fastapi&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.58-red?logo=streamlit&logoColor=white)
+Built with hybrid search (dense + BM25), cross-encoder reranking, metadata-guided pre-filtering, and a three-tier evaluation framework combining deterministic retrieval metrics with RAGAS Faithfulness and custom guardrail metrics.
+
+---
+
+## Architecture 
+
+```mermaid
+flowchart TB
+    subgraph Frontend["Streamlit Chat UI"]
+        UI[User Interface]
+        SIDE[Sidebar: Filters + LLM Toggle]
+    end
+
+    subgraph API["FastAPI Backend"]
+        QRY["POST /query"]
+        SRC["POST /search"]
+        FLT["GET /filters"]
+        HLT["GET /health"]
+    end
+
+    subgraph Pipeline["RAG Pipeline (LangChain LCEL)"]
+        direction TB
+        QF[Query Filters<br/>Metadata Extraction]
+        HYBRID[Hybrid Search<br/>Dense + BM25 Sparse]
+        RR[Reranker<br/>BGE Cross-Encoder]
+        LLM[Generation LLM<br/>OpenRouter / Ollama]
+    end
+
+    subgraph Store["Vector Store"]
+        QDR[(Qdrant<br/>3,204 chunks<br/>768d + BM25)]
+    end
+
+    UI -->|HTTP| QRY
+    QRY --> QF
+    QF --> HYBRID
+    HYBRID --> QDR
+    HYBRID --> RR
+    RR --> LLM
+    LLM -->|Response| UI
+    SIDE -->|Filters| QF
+    QRY -->|Chat History| LLM
+```
+
+**Request flow:** User query → metadata filter extraction → hybrid dense + BM25 search → cross-encoder reranking (only when no filter applied) → context injection → LLM generation → sourced answer.
 
 ---
 
 ## Features
 
-- **3,204 exercises** from 3 datasets, unified and deduplicated (1,183 empty exercises dropped)
-- **Hybrid search** — dense embeddings (BGE-base-en-v1.5, 768d) + BM25 sparse vectors
-- **Cross-encoder reranking** (BGE-reranker-base) for improved relevance
-- **Qdrant** vector database with metadata filtering (body part, equipment, level, category)
-- **LangChain** RAG pipeline with fitness-expert system prompt
-- **OpenRouter** (cloud) + **Ollama** (local) LLM support — switch at runtime
-- **FastAPI** backend + **Streamlit** frontend
-- **Source citations** — every answer references its source datasets
-- **Medical disclaimer** built into every response
-- **Evaluation framework** — deterministic retrieval metrics (Recall@K, MRR, Hit Rate) + RAGAS Faithfulness + custom guardrail metrics
-- **Test suite** — 79 pytest tests covering chunking, prompts, schemas, Qdrant store, retrieval metrics, config, and API endpoints
-- **Docker Compose** — one command for the full stack (Qdrant + FastAPI + Streamlit)
-
----
-
-## Architecture
-
-```
-User Query
-    │
-    ▼
-┌──────────────┐     ┌──────────────┐
-│  Streamlit    │────▶│  FastAPI      │
-│  Chat UI      │     │  /query       │
-└──────────────┘     └──────┬───────┘
-                             │
-                    ┌────────▼────────┐
-                    │  RAG Pipeline    │
-                    │  (LangChain LCEL) │
-                    └────────┬────────┘
-                             │
-              ┌──────────────┼──────────────┐
-              │              │              │
-┌──────▼─────┐ ┌────▼─────┐ ┌────▼─────┐
-        │  Embedder   │ │  Qdrant   │ │  Reranker  │
-        │  (768d)     │ │  Hybrid    │ │  (BGE)     │
-        └────────────┘ │  Search    │ └───────────┘
-                      └─────┬──────┘
-                            │
-                     ┌──────▼──────┐
-                     │  LLM         │
-                     │  (OpenRouter │
-                     │   / Ollama)  │
-                     └─────────────┘
-```
+- **3,204 indexed exercises** from 3 datasets, unified and deduplicated (1,183 empty records dropped)
+- **Hybrid search** — dense embeddings (BGE-base-en-v1.5, 768d) + BM25 sparse vectors via Qdrant `Prefetch`
+- **Cross-encoder reranking** — BGE-reranker-base, applied selectively when no metadata filters narrow the search space
+- **Metadata-guided pre-filtering** — automatic body_part, equipment, level extraction from informational queries, applied as Qdrant payload filters before search
+- **LangChain LCEL pipeline** — fitness-expert system prompt with guardrails, source citations, and medical disclaimer
+- **Dual LLM support** — OpenRouter (cloud) with runtime toggle; Ollama (local) fallback
+- **Multi-turn conversation** — 5-turn sliding window memory
+- **FastAPI backend** with typed Pydantic schemas, CORS, structured error handling
+- **Streamlit frontend** with metadata filter sidebar and LLM provider toggle
+- **Three-tier evaluation framework** — deterministic retrieval metrics + RAGAS Faithfulness + custom DiscreteMetrics (disclaimer, citation, off-topic refusal)
+- **79 pytest tests** covering chunking, prompts, schemas, serialization, retrieval metrics, config, and API
+- **Docker Compose** — one command for the full stack
 
 ---
 
 ## Quick Start
 
-### 1. Prerequisites
+### Prerequisites
 
-- **Python 3.12+**
-- **Docker** (for Qdrant)
-- **uv** package manager ([install](https://docs.astral.sh/uv/getting-started/installation/))
-- **OpenRouter API key** ([get one free](https://openrouter.ai/keys)) or **Ollama** ([install](https://ollama.ai))
+- Python 3.12+
+- Docker (for Qdrant)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager
+- OpenRouter API key ([free](https://openrouter.ai/keys)) or Ollama
 
-### 2. Clone & Install
+### Setup
 
 ```bash
-git clone <your-repo-url>
-cd fitness-rag
+# Clone & install
+git clone https://github.com/MohamedShakshak/Fitness-Assistant.git
+cd Fitness-Assistant
 uv sync
-```
 
-### 3. Configure
-
-Copy `.env.example` to `.env` and set your keys:
-
-```bash
+# Configure
 cp .env.example .env
 # Edit .env with your OpenRouter API key
-```
 
-### 4. Start Qdrant
-
-```bash
+# Start Qdrant
 docker run -d -p 6333:6333 -p 6334:6334 -v qdrant_storage:/qdrant/storage qdrant/qdrant
-```
 
-### 5. Index Data
-
-```bash
+# Index data (first run: ~3-5 min, downloads embedding model ~430MB)
 uv run python scripts/index_data.py
 ```
 
-This downloads the embedding model (first run ~430MB), chunks data, embeds, and upserts everything to Qdrant (~3-5 minutes on first run).
-
-### 6. Run the App
+### Run
 
 ```bash
 # Terminal 1 — API
@@ -110,15 +112,13 @@ uv run python -m src.api.main
 uv run streamlit run src/app/streamlit_app.py
 ```
 
-Open http://localhost:8501 to start chatting.
+Open [http://localhost:8501](http://localhost:8501).
 
-### 7. Docker Compose (Optional — Full Stack)
+### Docker Compose (Full Stack)
 
 ```bash
 docker compose up -d
 ```
-
-This starts Qdrant, the FastAPI backend, and Streamlit frontend in one command.
 
 ---
 
@@ -127,27 +127,48 @@ This starts Qdrant, the FastAPI backend, and Streamlit frontend in one command.
 ### Retrieval Metrics (Deterministic — No LLM Required)
 
 ```bash
+# With reranker (recommended)
+uv run python scripts/eval_retrieval.py
+
+# Without reranker (faster, for ablation)
 uv run python scripts/eval_retrieval.py --no-rerank
 ```
 
-Measures Recall@K, MRR, and Hit Rate against 25 manually curated Q&A pairs across 5 categories:
+25 manually curated Q&A pairs across 5 categories. Name matching uses normalization (lowercase, strip trailing punctuation, collapse whitespace) to reduce false negatives.
 
-| Category | Recall@5 | MRR | Hit Rate |
-|----------|----------|-----|----------|
-| muscle_equipment | 0.13 | 0.20 | 0.40 |
-| how_to | 0.80 | 0.47 | 0.80 |
-| muscle_targeting | 0.10 | 0.07 | 0.20 |
-| level_based | 0.30 | 0.40 | 0.40 |
-| comparison | 0.60 | 0.77 | 1.00 |
-| **Overall** | **0.39** | **0.38** | **0.56** |
+| Category | Recall@5 | MRR | Hit Rate | n |
+|----------|----------|-----|----------|---|
+| how_to | **1.0000** | 0.7067 | 1.0000 | 5 |
+| comparison | **0.7000** | 0.7000 | 0.8000 | 5 |
+| muscle_equipment | 0.4000 | 0.4667 | 0.8000 | 5 |
+| level_based | 0.3571 | 0.5000 | 0.6000 | 5 |
+| muscle_targeting | 0.1667 | 0.2667 | 0.6000 | 5 |
+| **Overall** | **0.5248** | **0.5280** | **0.7600** | 25 |
 
-### Full Evaluation (RAGAS Faithfulness + Guardrails)
+**Key improvements over baseline:**
+
+| Metric | Baseline | Current | Change |
+|--------|----------|---------|--------|
+| Recall@5 | 0.3467 | **0.5248** | **+51%** |
+| MRR | 0.3200 | **0.5280** | **+65%** |
+| Hit Rate | 0.5200 | **0.7600** | **+46%** |
+
+Improvements from: metadata-guided pre-filtering, expanded ground truth for broad queries, smart cross-encoder reranking (applied only when no filters narrow the search space).
+
+### Full Evaluation (RAGAS + Guardrails)
 
 ```bash
-uv run python scripts/run_evaluation.py --no-rerank
+uv run python scripts/run_evaluation.py
 ```
 
-Adds RAGAS Faithfulness, citation rate, disclaimer rate, and off-topic refusal rate. Requires an OpenRouter API key with available rate limit.
+Adds RAGAS Faithfulness (judge LLM checks answer grounding against retrieved context) and custom DiscreteMetrics for domain-specific guardrails:
+
+| Metric | What it measures | Judge LLM |
+|--------|-----------------|-----------|
+| Faithfulness | % of answer claims supported by context | RAGAS judge |
+| Citation rate | % of responses with `[Source: ...]` | RAGAS `DiscreteMetric` |
+| Disclaimer rate | % of responses with medical disclaimer | RAGAS `DiscreteMetric` |
+| Refusal rate | % of off-topic questions correctly refused | RAGAS `DiscreteMetric` |
 
 ### Test Suite
 
@@ -155,7 +176,7 @@ Adds RAGAS Faithfulness, citation rate, disclaimer rate, and off-topic refusal r
 uv run pytest tests/ -v
 ```
 
-79 tests covering chunking, prompts, schemas, Qdrant store serialization, retrieval metrics, configuration, and API endpoints.
+79 tests — chunking, prompts, API schemas, Qdrant serialization, retrieval metrics, configuration, API endpoints.
 
 ---
 
@@ -163,12 +184,12 @@ uv run pytest tests/ -v
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/query` | Main RAG query → `{answer, sources, context_used}` |
-| `POST` | `/search` | Retrieval-only (no LLM) → `{results: [{id, text, score, metadata}]}` |
-| `GET` | `/filters` | Available filter values (body_part, equipment, level, category) |
+| `POST` | `/query` | Full RAG query → `{answer, sources, context_used}` |
+| `POST` | `/search` | Retrieval-only (no LLM) → `{results}` |
+| `GET` | `/filters` | Available filter values for Streamlit sidebar |
 | `GET` | `/health` | Health check |
 
-### Example Request
+### Example
 
 ```bash
 curl -X POST http://localhost:8000/query \
@@ -176,97 +197,49 @@ curl -X POST http://localhost:8000/query \
   -d '{"query": "What are some beginner chest exercises with dumbbells?"}'
 ```
 
+Response:
+
+```json
+{
+  "answer": "Dumbbell Bench Press and Dumbbell Flyes are beginner-friendly chest exercises [Source: wrkout]. This information is for educational purposes only...",
+  "sources": [
+    {"name": "Dumbbell Bench Press", "equipment": "dumbbell", "level": "beginner", "source_db": "wrkout"},
+    {"name": "Dumbbell Flyes", "equipment": "dumbbell", "level": "beginner", "source_db": "wrkout"}
+  ],
+  "context_used": true
+}
+```
+
 ---
 
 ## Data Sources
 
-| Source | Exercises | License |
-|--------|-----------|---------|
-| [wrkout/exercises.json](https://github.com/wrkout/exercises.json) | 873 | Unlicense (public domain) |
-| [Kaggle: Gym Exercise Dataset](https://www.kaggle.com/datasets/niharika41298/gym-exercise-data) | 2,918 | CC0-1.0 |
-| [Kaggle: Fitness Exercises Dataset](https://www.kaggle.com/datasets/omarxadel/fitness-exercises-dataset) | 1,324 | MIT |
-| **Unified** | **4,387** (3,204 indexed) | — |
-
----
-
-## Project Structure
-
-```
-fitness-rag/
-├── data/
-│   ├── raw/                    # Downloaded originals
-│   ├── processed/              # Unified exercises.json
-│   ├── chunks/                 # RAG-ready chunks (LangChain Documents)
-│   └── eval/                   # 25 Q&A pairs + 5 off-topic questions
-├── src/
-│   ├── config.py               # Pydantic Settings, .env loader, API key validation
-│   ├── pipeline.py             # End-to-end RAG pipeline
-│   ├── chunking/chunker.py     # Exercise chunking (LangChain Document format)
-│   ├── embedding/
-│   │   ├── embedder.py         # BGE-base-en-v1.5 (768d, LangChain)
-│   │   └── reranker.py         # BGE-reranker-base
-│   ├── vectorstore/qdrant_store.py  # Qdrant hybrid search + serialization
-│   ├── retrieval/retriever.py  # Search + rerank pipeline
-│   ├── generation/
-│   │   ├── llm_client.py       # ChatOllama + ChatOpenAI
-│   │   └── prompts.py          # System prompt + templates
-│   ├── evaluation/
-│   │   ├── ragas_setup.py      # RAGAS judge LLM factory
-│   │   └── metrics.py          # Custom guardrail metrics
-│   ├── api/
-│   │   ├── main.py             # FastAPI endpoints
-│   │   └── schemas.py          # Pydantic models
-│   └── app/streamlit_app.py    # Streamlit chat UI
-├── scripts/
-│   ├── index_data.py           # One-command indexing
-│   ├── eval_retrieval.py       # Deterministic retrieval metrics
-│   ├── run_evaluation.py       # Full eval (RAGAS + guardrails)
-│   ├── test_search.py          # Test retrieval
-│   └── test_models.py          # Test OpenRouter models
-├── tests/                      # 79 pytest tests (unit + integration)
-├── evals/experiments/          # Eval results
-├── docker-compose.yml          # Qdrant + FastAPI + Streamlit
-├── Dockerfile                  # Python 3.12-slim + uv
-├── .env                        # Secrets (gitignored)
-├── .env.example                # Config template
-├── pyproject.toml               # Dependencies + pytest config + dev deps
-├── PLAN.md                     # Detailed project plan (42 architecture decisions)
-└── README.md                   # This file
-```
+| Source | Exercises | License | Content |
+|--------|-----------|---------|---------|
+| [wrkout/exercises.json](https://github.com/wrkout/exercises.json) | 873 | Unlicense | Step-by-step instructions, equipment, mechanics |
+| [Kaggle: Gym Exercise Dataset](https://www.kaggle.com/datasets/niharika41298/gym-exercise-data) | 2,918 | CC0-1.0 | Descriptions, body part, equipment, level |
+| [Kaggle: Fitness Exercises Dataset](https://www.kaggle.com/datasets/omarxadel/fitness-exercises-dataset) | 1,324 | MIT | Targeted muscles, instructions, equipment |
+| **Unified** | **4,387** (3,204 indexed) | — | Unified schema, deduplicated by name |
 
 ---
 
 ## Configuration
 
-All settings are in `.env` (see `.env.example`):
+All settings via `.env` (see `.env.example`):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `QDRANT_URL` | `http://localhost:6333` | Qdrant connection URL |
-| `QDRANT_COLLECTION` | `fitness_exercises` | Qdrant collection name |
-| `EMBEDDING_MODEL` | `BAAI/bge-base-en-v1.5` | Sentence-transformers model |
-| `EMBEDDING_DIM` | `768` | Embedding dimensions |
-| `EMBEDDING_DEVICE` | `cpu` | Device for embedding (`cpu` or `cuda`) |
-| `RERANKER_MODEL` | `BAAI/bge-reranker-base` | Cross-encoder reranker model |
-| `SPARSE_MODEL` | `Qdrant/bm25` | Sparse embedding model for BM25 |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
-| `OLLAMA_MODEL` | `qwen3.5:9b` | Ollama model name |
-| `OPENROUTER_API_KEY` | — | Your OpenRouter API key |
-| `OPENROUTER_BASE_URL` | `https://openrouter.ai/api/v1` | OpenRouter API URL |
-| `OPENROUTER_MODEL` | `nvidia/nemotron-3-super-120b-a12b:free` | OpenRouter model |
-| `LLM_PROVIDER` | `openrouter` | `"openrouter"` or `"ollama"` |
-| `LLM_MAX_RETRIES` | `3` | LLM request retries |
-| `LLM_TIMEOUT` | `120` | LLM request timeout (seconds) |
-| `LLM_MAX_TOKENS` | `2048` | Max generation tokens |
-| `TOP_K` | `5` | Number of results to retrieve |
-| `RERANK_TOP_K` | `5` | Number of results after reranking |
-| `API_URL` | `http://localhost:8000` | FastAPI URL (used by Streamlit) |
-| `API_HOST` | `0.0.0.0` | FastAPI bind host |
-| `API_PORT` | `8000` | FastAPI bind port |
-| `LOG_LEVEL` | `INFO` | Logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
-| `MAX_HISTORY_TURNS` | `5` | Chat history window |
-| `EVAL_MODEL` | `nvidia/nemotron-3-super-120b-a12b:free` | RAGAS judge LLM model |
-| `EVAL_BATCH_SIZE` | `5` | Evaluation batch size |
+| `QDRANT_URL` | `http://localhost:6333` | Qdrant connection |
+| `OPENROUTER_API_KEY` | — | OpenRouter key |
+| `OPENROUTER_MODEL` | `nvidia/nemotron-3-super-120b-a12b:free` | Generation model |
+| `LLM_PROVIDER` | `openrouter` | `openrouter` or `ollama` |
+| `TOP_K` | `5` | Retrieved results |
+| `EVAL_PROVIDER` | `openrouter` | Eval judge provider |
+| `EVAL_MODEL` | `gemini/gemini-1.5-flash` | RAGAS judge model |
+| `GEMINI_API_KEY` | — | Google AI Studio key for eval |
+| `LOG_LEVEL` | `INFO` | Logging verbosity |
+
+Full list of 30+ settings in `.env.example`.
 
 ---
 
@@ -275,44 +248,67 @@ All settings are in `.env` (see `.env.example`):
 | Component | Technology |
 |-----------|-----------|
 | Language | Python 3.12 |
-| Package Manager | uv |
-| RAG Framework | LangChain (LCEL) |
-| Embedding | sentence-transformers `BAAI/bge-base-en-v1.5` (768d, local) |
-| Reranker | `BAAI/bge-reranker-base` |
-| Vector Store | Qdrant (Docker, hybrid: dense + BM25) |
-| LLM (cloud) | OpenRouter (configurable models) |
-| LLM (local) | Ollama (Qwen3.5:9B) |
-| Backend | FastAPI |
-| Frontend | Streamlit |
-| Config | Pydantic Settings + `.env` |
+| Package manager | uv |
+| RAG framework | LangChain (LCEL) |
+| Embedding model | BGE-base-en-v1.5 (768d, sentence-transformers) |
+| Reranker | BGE-reranker-base (cross-encoder) |
+| Sparse search | BM25 via fastembed (Qdrant/bm25) |
+| Vector store | Qdrant (Docker, hybrid dense + sparse) |
+| Cloud LLM | OpenRouter (OpenAI-compatible API) |
+| Local LLM | Ollama (Qwen3.5:9B) |
+| Backend | FastAPI (Pydantic v2, CORS, logging) |
+| Frontend | Streamlit (sidebar filters, chat UI) |
+| Evaluation | RAGAS 0.4.3 (Faithfulness + DiscreteMetric) |
+| Testing | pytest (79 tests, mocked APIs) |
+| Infrastructure | Docker Compose (3 services) |
 
 ---
 
-## Available OpenRouter Models (Free Tier)
+## Project Structure
 
-| Model | Size | Speed | Quality |
-|-------|------|-------|---------|
-| `liquid/lfm-2.5-1.2b-instruct:free` | 1.2B | Fast | Basic |
-| `meta-llama/llama-3.2-3b-instruct:free` | 3B | Medium | Good |
-| `meta-llama/llama-3.3-70b-instruct:free` | 70B | Slow | Excellent |
-| `nvidia/nemotron-3-ultra-550b-a55b:free` | 550B | Very slow | Best |
-
-Free models are rate-limited. For production, consider a paid model like `gpt-4o-mini`.
+```
+Fitness-Assistant/
+├── data/
+│   ├── raw/                    # Source datasets
+│   ├── processed/              # 4,387 unified exercises
+│   ├── chunks/                 # 3,204 LangChain Documents
+│   └── eval/                   # 25 Q&A pairs + 5 off-topic
+├── src/
+│   ├── chunking/chunker.py     # 1-exercise-per-chunk, labeled-section format
+│   ├── embedding/
+│   │   ├── embedder.py         # BGE-base-en-v1.5 (768d)
+│   │   └── reranker.py         # BGE-reranker-base
+│   ├── vectorstore/qdrant_store.py  # Hybrid search, serialization, filters
+│   ├── retrieval/
+│   │   ├── retriever.py        # Search + smart reranking orchestrator
+│   │   ├── query_filters.py    # Metadata extraction from natural language
+│   │   └── query_expansion.py  # LLM-based multi-query generation
+│   ├── generation/
+│   │   ├── llm_client.py       # ChatOpenAI / ChatOllama factory
+│   │   └── prompts.py          # Fitness-expert system prompt + templates
+│   ├── pipeline.py             # End-to-end RAG LCEL chain
+│   ├── evaluation/
+│   │   ├── evaluator.py        # Scoring orchestrator
+│   │   ├── metrics.py          # Custom DiscreteMetrics
+│   │   ├── ragas_setup.py      # Judge LLM factory (OpenRouter / Gemini)
+│   │   └── report.py           # CSV/JSON/markdown output
+│   ├── api/
+│   │   ├── main.py             # FastAPI app (4 endpoints)
+│   │   └── schemas.py          # Pydantic request/response models
+│   └── app/streamlit_app.py    # Chat UI
+├── scripts/
+│   ├── index_data.py           # Load → chunk → embed → upsert
+│   ├── eval_retrieval.py       # Deterministic retrieval metrics
+│   └── run_evaluation.py       # Full multi-metric eval
+├── tests/                      # 79 pytest tests
+├── evals/experiments/          # Evaluation results
+├── docker-compose.yml
+├── Dockerfile
+└── pyproject.toml
+```
 
 ---
 
 ## License
 
-This project is for personal/educational use. Exercise data is sourced from publicly available datasets (CC0, MIT, Unlicense licenses). See individual data sources for specific license terms.
-
----
-
-## Acknowledgments
-
-- [wrkout/exercises.json](https://github.com/wrkout/exercises.json) — Exercise database (Unlicense)
-- [Kaggle Gym Exercise Dataset](https://www.kaggle.com/datasets/niharika41298/gym-exercise-data) — Exercise data (CC0)
-- [Kaggle Fitness Exercises Dataset](https://www.kaggle.com/datasets/omarxadel/fitness-exercises-dataset) — Exercise data (MIT)
-- [Qdrant](https://qdrant.tech/) — Vector search engine
-- [LangChain](https://langchain.com/) — RAG framework
-- [BAAI/bge-base-en-v1.5](https://huggingface.co/BAAI/bge-base-en-v1.5) — Embedding model
-- [BAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base) — Reranker model
+Educational/personal use. Data sourced from publicly available datasets under CC0, MIT, and Unlicense licenses. See individual source pages for terms.
