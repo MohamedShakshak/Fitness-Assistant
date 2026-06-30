@@ -238,9 +238,7 @@ All settings via `.env` (see `.env.example`):
 | `OPENROUTER_MODEL` | `nvidia/nemotron-3-super-120b-a12b:free` | Generation model |
 | `LLM_PROVIDER` | `openrouter` | `openrouter` or `ollama` |
 | `TOP_K` | `5` | Retrieved results |
-| `EVAL_PROVIDER` | `openrouter` | Eval judge provider |
-| `EVAL_MODEL` | `gemini/gemini-1.5-flash` | RAGAS judge model |
-| `GEMINI_API_KEY` | — | Google AI Studio key for eval |
+| `EVAL_MODEL` | `nvidia/nemotron-3-super-120b-a12b:free` | RAGAS judge model |
 | `LOG_LEVEL` | `INFO` | Logging verbosity |
 
 Full list of 30+ settings in `.env.example`.

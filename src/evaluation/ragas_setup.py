@@ -7,7 +7,6 @@ from src.config import settings
 
 
 def get_ragas_llm():
-    provider = settings.EVAL_PROVIDER
     client = OpenAI(
         api_key=settings.OPENROUTER_API_KEY,
         base_url=settings.OPENROUTER_BASE_URL,
